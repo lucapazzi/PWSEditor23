@@ -96,6 +96,13 @@ public class PWSStateMachine extends StateMachine {
             pseudo.setStateSemantics(init);
         }
 
+        // Precompute static exit zones based on each state's constraint semantics
+        for (StateInterface si : getStates()) {
+            if (si instanceof PWSState ps && si != pseudoState) {
+                ps.setReactiveSemantics(new HashSet<>(this.findExitZones(ps.getConstraintsSemantics())));
+            }
+        }
+
         // Compute fixed-point semantics for all states via SemanticsVisitor
         Map<PWSState, Semantics> semMap = SemanticsVisitor.computeAllStateSemantics(this);
 

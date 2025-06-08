@@ -72,11 +72,6 @@ public class SemanticsVisitor {
         while (!worklist.isEmpty()) {
             PWSState src = worklist.poll();
             Semantics base = semMap.get(src);
-            // Recompute reactive exit-zones dynamically based on current base semantics
-            Collection<ExitZone> dynamicZones = machine.findExitZones(base);
-            // Convert to HashSet since reactiveSemantics expects a HashSet
-            HashSet<ExitZone> newZones = new HashSet<>(dynamicZones);
-            src.setReactiveSemantics(newZones);
 
             for (TransitionInterface ti : machine.getTransitions()) {
                 if (!(ti instanceof PWSTransition)) continue;
@@ -94,18 +89,7 @@ public class SemanticsVisitor {
             }
         }
 
-        // ------------------------------------------------------------------
-        // POST-FIXPOINT EXIT-ZONE UPDATE
-        // Ensure each state’s reactive exit-zones reflect its final semantics
-        for (Map.Entry<PWSState, Semantics> entry : semMap.entrySet()) {
-            PWSState state = entry.getKey();
-            if (!state.isPseudoState()) {
-                Semantics finalSem = entry.getValue();
-                Collection<ExitZone> dynamicZones = machine.findExitZones(finalSem);
-                state.setReactiveSemantics(new HashSet<>(dynamicZones));
-            }
-        }
-        // ------------------------------------------------------------------
+        // (Removed POST-FIXPOINT EXIT-ZONE UPDATE)
         logger.info("Completed worklist semantics computation for machine '" + machine.getName() + "'.");
         return semMap;
     }
